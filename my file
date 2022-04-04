@@ -1,0 +1,295 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.IO;
+using UnderTheProgram;
+using System.Runtime.Serialization.Formatters.Binary;
+
+namespace UnderTheProgram
+{
+    [Serializable]
+    class myDictionryIsArtificial
+    {
+        private Dictionary<string, List<string>> dict;
+        public myDictionryIsArtificial()
+        {
+            this.Dict = new Dictionary<string, List<string>>();
+        }
+        public Dictionary<string, List<string>> Dict { get => dict; set => dict = value; }
+        public void addWord(string word,string translete)
+        {
+            if (Dict.ContainsKey(word))
+            {
+                if(Dict[word].Contains(translete))
+                {
+
+                }
+                else
+                {
+                    Dict[word].Add(translete);
+                }
+               
+            }
+            else
+            {
+                Dict.Add(word, new List<string>());
+                Dict[word].Add(translete);
+            }
+        }
+        public void clearWordKey(string word)
+        {
+            if (Dict.ContainsKey(word))
+            {
+                Dict.Remove(word);
+            }
+            else
+            {
+                Console.WriteLine("Вы ввели слово которого не существует в словаре!");
+                Thread.Sleep(3000);
+            }
+        }
+        public void clearWordMeaning(string word,string translete)
+        {
+            if (Dict.ContainsKey(word))
+            {
+                if (dict[word].Contains(translete))
+                {
+                    if (dict[word].Count() > 1)
+                    {
+                        dict[word].Remove(translete);
+                    }
+                    else
+                    {
+                        Console.WriteLine("Перевод слова удалению не подлежит, так как находиться в единственном экземпляре!");
+                        Thread.Sleep(3000);
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("Вы ввели перевод которого не существует в словаре!");
+                    Thread.Sleep(3000);
+                }
+            }
+            else
+            {
+                Console.WriteLine("Вы ввели слово которого не существует в словаре!");
+                Thread.Sleep(3000);
+            }
+        }
+        public void replacementWordKey(string word,string wordNew)
+        {
+            if (Dict.ContainsKey(word))
+            {
+                List<string> temporarily = new List<string>();
+                temporarily=Dict[word];
+                Dict.Remove(word);
+                Dict.Add(wordNew, temporarily);
+            }
+            else
+            {
+                Console.WriteLine("Вы ввели слово которого не существует в словаре!");
+                Thread.Sleep(3000);
+            }
+        }
+        public void replacementWordMeaning(string word, string translete, string transleteNew)
+        {
+            if (Dict.ContainsKey(word))
+            {
+                if (dict[word].Contains(translete))
+                {
+                    dict[word].Remove(translete);
+                    dict[word].Add(transleteNew);
+                }
+                else
+                {
+                    Console.WriteLine("Вы ввели перевод которого не существует в словаре!");
+                    Thread.Sleep(3000);
+                }
+            }
+            else
+            {
+                Console.WriteLine("Вы ввели слово которого не существует в словаре!");
+                Thread.Sleep(3000);
+            }
+        }
+        public void searchMytranslete(string word)
+        {
+            if (Dict.ContainsKey(word))
+            {
+                foreach(string temporarily in Dict[word])
+                {
+                    Console.WriteLine(temporarily);
+                }
+                Thread.Sleep(5000);
+            }
+            else
+            {
+                Console.WriteLine("Вы ввели слово которого не существует в словаре!");
+                Thread.Sleep(3000);
+            }
+
+        }
+        public void outputToFile(string word)
+        {
+            if (Dict.ContainsKey(word))
+            {
+                File.Create(word+@".txt").Close();
+                File.WriteAllLines(word + @".txt", Dict[word]);
+            }
+            else
+            {
+                Console.WriteLine("Вы ввели слово которого не существует в словаре!");
+                Thread.Sleep(3000);
+            }
+        }
+        public void print ()
+        {
+            if (Dict.Count() !=0)
+            {
+               foreach (var word in dict.Keys)
+               {
+                  Console.Write(word+" -> ");
+                  foreach (var translete in dict[word])
+                  {
+                    Console.Write(translete+" ");
+                  }
+                  Console.WriteLine();
+                  Thread.Sleep(7000);
+               }
+            }
+            else
+            {
+                Console.WriteLine("Словарь пуст");
+                Thread.Sleep(5000);
+            }
+            
+        }
+    }
+}
+
+namespace ConsoleApp237
+{
+    class Program
+    {
+
+        static void Main(string[] args)
+        {
+            myDictionryIsArtificial memory = new myDictionryIsArtificial();
+            BinaryFormatter binaryFormatter = new BinaryFormatter();
+            DirectoryInfo di = new DirectoryInfo(@"C:\Users\pozdnich\source\repos\dictionary translator\dictionary translator\bin\Debug\net6.0");
+            if(di.GetFiles("* словарь*").Length!=0)
+            {
+                Console.WriteLine("Сейчас существует следущие словари:");
+                foreach (var file in di.GetFiles("* словарь*"))
+                {
+                    Console.WriteLine(file.Name);
+                }
+                Console.WriteLine();
+                Console.WriteLine("Выберите один из словарей или создайте новый по типу \n-> язык основного слова - язык перевода основного слова (Англо-русский)");
+            }
+            else
+            {
+                Console.WriteLine("Сейчас не существует словарей");
+                Console.WriteLine("Создайте новый словарь по типу\n-> язык основного слова - язык перевода основного слова (Англо-русский)");
+                
+            }
+            var name=Console.ReadLine();
+            if (File.Exists($"{name} словарь"))
+            {
+                var fili = File.OpenRead(name + " словарь");
+                if(fili.Length != 0)
+                {
+                  memory.Dict = (Dictionary<string, List<string>>)binaryFormatter.Deserialize(fili);
+                }
+                fili.Close();
+            }
+            else
+            {
+                File.Create(name + " словарь").Close();
+            }
+            //начало
+            bool iter = true;
+            Console.Clear();
+            while (iter)
+            {
+                Console.Clear();
+                Console.WriteLine("Выберите вариант действий со словарем:");
+                Console.WriteLine("1 - Добавить слово и перевод, или к слову перевод!");
+                Console.WriteLine("2 - Изменить слово!(учитывайте что слово должно существовать)");
+                Console.WriteLine("3 - Изменить перевод!(учитывайте что перевод должен существовать)");
+                Console.WriteLine("4 - Удалить слово!(учитывайте что слово должно существовать и удаляются все его переводы)");
+                Console.WriteLine("5 - Удалить перевод!(учитывайте что перевод должен существовать как и само слово, а так же перевод не должен быть единственным переводом)");
+                Console.WriteLine("6 - Поиск перевода слова!");
+                Console.WriteLine("7 - Вывести переводы слова в txt фаил!");
+                Console.WriteLine("8 - Закончить работу со словарем!");
+                Console.WriteLine("9 - Вывести все имеющиеся слова и их переводы в данном словаре!");
+                int vib;
+                do
+                {
+                    vib=int.Parse(Console.ReadLine());
+                } while (vib < 1 && vib > 9);
+                Console.Clear ();
+                switch (vib)
+                {
+                    case 1:
+                        Console.Write("Введите слово ->");
+                        var word1 =Console.ReadLine();
+                        Console.Write("Введите перевод слова ->");
+                        var translete1 = Console.ReadLine();
+                        memory.addWord(word1, translete1);
+                        break;
+                    case 2:
+                        Console.Write("Введите слово которое хотите изменить ->");
+                        var word2 = Console.ReadLine();
+                        Console.Write("Введите слово на которое хотите поменять ->");
+                        var wordNew2 = Console.ReadLine();
+                        memory.replacementWordKey(word2, wordNew2);
+                        break;
+                    case 3:
+                        Console.Write("Введите слово у которого хотите изменить перевод->");
+                        var word3 = Console.ReadLine();
+                        Console.Write("Введите перевод который хотите изменить ->");
+                        var translete3 = Console.ReadLine();
+                        Console.Write("Введите перевод на который хотите изменить ->");
+                        var transleteNew3 = Console.ReadLine();
+                        memory.replacementWordMeaning(word3, translete3, transleteNew3);
+                        break;
+                    case 4:
+                        Console.Write("Введите слово которое хотите удалить->");
+                        var word4 = Console.ReadLine();
+                        memory.clearWordKey(word4);
+                        break;
+                    case 5:
+                        Console.Write("Введите слово у которого хотите удалить перевод->");
+                        var word5 = Console.ReadLine();
+                        Console.Write("Введите перевод слова который хотите удалить ->");
+                        var translete5 = Console.ReadLine();
+                        memory.clearWordMeaning(word5, translete5);
+                        break;
+                    case 6:
+                        Console.Write("Введите слово ->");
+                        var word6 = Console.ReadLine();
+                        memory.searchMytranslete(word6);
+                        break;
+                    case 7:
+                        Console.Write("Введите слово ->");
+                        var word7 = Console.ReadLine();
+                        memory.outputToFile(word7);
+                        break;
+                    case 8:
+                        iter = false;
+                        break;
+                    case 9:
+                        memory.print();
+                        break;
+                }
+            }
+            //конец
+            var fil = File.OpenWrite(name + " словарь");
+            binaryFormatter.Serialize(fil,memory.Dict);
+            fil.Close();
+        }
+    }
+}
