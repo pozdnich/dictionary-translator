@@ -178,7 +178,7 @@ namespace ConsoleApp237
         {
             myDictionryIsArtificial memory = new myDictionryIsArtificial();
             BinaryFormatter binaryFormatter = new BinaryFormatter();
-            DirectoryInfo di = new DirectoryInfo(@"C:\Users\pozdnich\source\repos\dictionary translator\dictionary translator\bin\Debug\net6.0");
+            DirectoryInfo di = new DirectoryInfo(@".");
             if(di.GetFiles("* словарь*").Length!=0)
             {
                 Console.WriteLine("Сейчас существует следущие словари:");
